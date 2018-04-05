@@ -1,7 +1,4 @@
-ARG ALPINE_VERSION=3.7
-
-FROM alpine:${ALPINE_VERSION} AS builder
-ARG ALPINE_VERSION
+FROM alpine:3.7 AS builder
 
 RUN apk --no-cache add alpine-sdk coreutils
 
@@ -19,7 +16,7 @@ RUN abuild-apk update && abuild -r
 
 ###
 
-FROM alpine:${ALPINE_VERSION}
+FROM alpine:3.7
 
 RUN apk add coreutils openssl ca-certificates --no-cache
 
