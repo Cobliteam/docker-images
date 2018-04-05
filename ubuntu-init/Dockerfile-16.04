@@ -3,14 +3,14 @@ FROM ubuntu:16.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV container=docker
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-    openssh-server sudo dbus git-core vim && \
-    curl iproute2 net-tools ca-certificates && \
-    bzip2 zip unzip xz-utils && \
-    apt-transport-https apt-utils && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
+       openssh-server sudo dbus git-core vim \
+       curl iproute2 net-tools ca-certificates \
+       bzip2 zip unzip xz-utils \
+       apt-transport-https apt-utils \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN find /lib/systemd/system/sysinit.target.wants -xtype f -printf '%f\n' | \
     grep -v -E '(journal|machine-id|random-seed|tmpfiles|ldconfig)' | \
