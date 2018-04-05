@@ -30,8 +30,13 @@ chmod -R ug=rwX,o= "$squid_ssl_dir"
 chown -R "$squid_user:$squid_user" "$squid_ssl_db_dir"
 chmod -R ug=rwX,o= "$squid_ssl_db_dir"
 
-if [ ! -f "${squid_conf_dir}/squid.conf" ] || \
-   [ "${squid_conf_dir}/squid.conf.template" -nt "${squid_conf_dir}/squid.conf" ]
+if [ "$SQUID_CUSTOM_CONFIG" -eq 1 ]; then
+    if [ ! -f /etc/squid/squid.conf ]; then
+        echo "Error: SQUID_CUSTOM_CONFIG is set but config is not a file" >&2
+        exit 1
+    fi
+elif [ ! -f "${squid_conf_dir}/squid.conf" ] || \
+     [ "${squid_conf_dir}/squid.conf.template" -nt "${squid_conf_dir}/squid.conf" ]
 then
     subst_vars "${squid_conf_dir}/squid.conf.template" > "${squid_conf_dir}/squid.conf"
     cat "${squid_conf_dir}/squid.conf"
