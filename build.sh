@@ -22,14 +22,13 @@ docker_build() {
 repository="$1"
 [ -n "$repository" ] || repository=cobli
 
-pushd sbt
-docker_build -t $repository/ci-sbt:latest .
-popd
-pushd ubuntu-init
-docker_build -t $repository/ubuntu-init:14.04 -f Dockerfile-14.04 . 
-docker_build -t $repository/ubuntu-init:16.04 -f Dockerfile-16.04 .
-popd
-pushd ubuntu-init-python
-docker_build -t $repository/ubuntu-init-python:14.04 -f Dockerfile-14.04 .
-docker_build -t $repository/ubuntu-init-python:16.04 -f Dockerfile-16.04 .
-popd
+pushd sbt; docker_build -t "$repository/ci-sbt:latest" .; popd
+for image in \
+    ubuntu-init-14.04 \
+    ubuntu-init-16.04 \
+    ubuntu-init-python-14.04 \
+    ubuntu-init-python-16.04 \
+    squid-ssl
+do
+    pushd "$image"; docker_build -t "$repository/$image:latest" .; popd
+done
