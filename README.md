@@ -1,8 +1,14 @@
 # Cobli CI Images
 
-This repository contains specifications for some Docker images used in Continuous Integration of other Cobli projects. All of the images are based on Ubuntu.
+This repository contains specifications for some Docker images used in
+Continuous Integration of other Cobli projects. 
+
+All the images are pushed to quay.io automatically. To use them, prefix the
+image name with `quay.io`. For example, `quay.io/cobli/ci-sbt:latest`.
 
 ## cobli/ci-sbt
+
+Base: ubuntu:16.04
 
 This image contains:
 - Base utilities: git, ssh, tar, gzip, ca-certificates, apt-transport-https
@@ -12,16 +18,30 @@ This image contains:
 - [Cassandra-migrate](https://github.com/Cobliteam/cassandra-migrate)
 - The AWS CLI
 
-## cobli/ubuntu-init
+## cobli/ubuntu-init-14-04
 
-Ubuntu images made to run the original init systems of the corresponding
-versions (upstart for 14.04 and earlier, systemd for later) with clean
-settings for use in containers. OpenSSH is enabled and used for accessing the
-containers.
+Base: ubuntu-upstart:14.04
 
-To use the systemd images, some tweaks to the containers are necessary:
+Ubuntu 14.04 (Trusty) image with Upstart as an init system. A `test` user is
+created, and OpenSSH is set up to access it (either by setting a password or
+adding some authorized keys with `docker exec`).
 
-- `/sys/fs/cgroup` must be bind-mounted from the host system (even if RO)
+Additionally contains:
+  - sudo
+  - dbus
+  - curl
+  - git
+  - vim
+  - some network tools
+
+## cobli/ubuntu-init-16-04
+
+Base: ubuntu:16.04
+Ubuntu 16.04 (Xenial) image with systemd as an init service. Similar to the
+14.04 image, but with some additional requirements for running it, since
+systemd needs some system privilegs to run.
+
+- `/sys/fs/cgroup` must be bind-mounted (possibly RO) from the host system
 - `CAP_SYS_ADMIN` must be granted
 - `seccomp` must be set to `unconfined`
 - Three `tmpfs` mounts must be set up:
@@ -30,18 +50,42 @@ To use the systemd images, some tweaks to the containers are necessary:
   * /run/lock
 - `stop_signal` must be set to `SIGRTMIN+3`
 
-These images also contain:
-- sudo, dbus, curl, git, vim, some network tools
+## cobli/ubuntu-init-python-14-04
 
-Available tags:
-- `16.04`
-- `14.04`
+Base: ubuntu-init-14-04
 
-## cobli/ubuntu-init-python
+Adds Python 2 development packages and some dependencies commonly used for
+building Python packages.
 
-Based on `cobli/ubuntu-init`, but addding Python2 and some development packages
-to install/build other Python packages.
+## cobli/ubuntu-init-python-16-04
 
-Contains:
-- pip, setuptools, wheel, python-dev
-- build-essential, libffi-dev
+Base: ubuntu-init-16-04
+
+Same as above, but for Ubuntu 16.04.
+
+## cobli/squid-ssl
+
+Base: alpine:3.7
+
+Squid (the caching proxy) image. Meant for use as an explicit proxy (by setting
+the `http_proxy` and `https_proxy` env. vars) in other containers.
+
+An ephemeral CA is generated in `/etc/squid/ssl`, which is set up as a volume.
+`/etc/squid/ssl/ca.pem` can be copied to other containers and added to their
+set of trusted CAs to allow for HTTPS interception.
+
+The cache directory is set to `/var/spool/squid` which is also a volume.
+
+To configure Squid, the following env. vars can be set (with their defaults
+shown):
+
+- `SQUID_SSL_DIR=/etc/squid/ssl`
+- `SQUID_SSL_DB_DIR=/var/cache/squid/ssl_Db`
+- `SQUID_SSL_DB_MEM_SIZE=4MB`
+- `SQUID_SSL_DB_DISK_SIZE=16MB`
+- `SQUID_CACHE_DIR_MAX_SIZE_MB=1000`
+- `SQUID_OBJECT_MAX_SIZE="100 MB"`
+- `SQUID_PORT=3128`.
+
+Alternatively, a custom config file can be bind-mounted to
+`/etc/squid/squid.conf` while passing `SQUID_CUSTOM_CONFIG=1` as an env var.
