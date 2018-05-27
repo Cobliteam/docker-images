@@ -19,12 +19,9 @@ RUN echo "deb https://sbt.bintray.com/debian /" > /etc/apt/sources.list.d/sbt.li
     apt-get update -q && \
     apt-get install -y bc sbt
 
-RUN useradd -ms /bin/bash build
-WORKDIR /home/build
-USER build
-
 ARG SBT_VERSION
-RUN sbt -sbt-version "$SBT_VERSION" sbtVersion
+RUN cd /tmp; sbt -sbt-version "$SBT_VERSION" sbtVersion
+WORKDIR /root
 CMD ["sbt", "-sbt-version", "$SBT_VERSION"]
 
 ARG SOURCE_COMMIT
