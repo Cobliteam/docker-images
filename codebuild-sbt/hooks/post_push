@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+numeric_version() {
+    tr '.' ' ' <<< "$1" | xargs printf '%03d'
+}
+
+get_image_sbt_version() {
+    local version_label=org.label-schema.version
+    docker inspect \
+        --format "{{ index .Config.Labels \"$version_label\"}}" \
+        "$1"
+}
+
+sbt_version=$(get_image_sbt_version "$IMAGE_NAME")
+IFS='.' read -r major minor patch <<< "$sbt_version"
+IFS='-' read -r version qualifiers <<< "$sbt_version"
+
+# Create extra tags for different version combinations, but only when the built
+# image is not a pre-release and is not older than the previously tagged
+# version.
+
+if [ -z "$qualifiers" ]; then
+    version_num=$(numeric_version "$version")
+
+    for extra_tag in "$major.$minor.$patch" "$major.$minor" "$major"; do
+        extra_image_name="$DOCKER_REPO:$extra_tag"
+        extra_version=$(get_image_sbt_version "$extra_image_name" || :)
+        extra_version_num=$(numeric_version "$extra_version")
+        if [ "$version_num" -lt "$extra_version_num" ]; then
+            continue
+        fi
+
+        docker tag "$IMAGE_NAME" "$DOCKER_REPO:$extra_tag"
+        docker push "$DOCKER_REPO:$extra_tag"
+    done
+fi

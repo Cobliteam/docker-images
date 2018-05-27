@@ -22,14 +22,18 @@ docker_build() {
 repository="$1"
 [ -n "$repository" ] || repository=cobli
 
-pushd sbt
-docker_build -t $repository/ci-sbt:latest .
+pushd codebuild-sbt
+docker_build --build-arg SBT_VERSION=1.1.5 -t "$repository/codebuild-sbt:1.1.5" .
+docker_build --build-arg SBT_VERSION=0.13.17  -t "$repository/codebuild-sbt:0.13.17" .
+docker tag "$repository/codebuild-sbt:1.1.5" "$repository/codebuild-sbt:latest"
 popd
+
 pushd ubuntu-init
-docker_build -t $repository/ubuntu-init:14.04 -f Dockerfile-14.04 . 
-docker_build -t $repository/ubuntu-init:16.04 -f Dockerfile-16.04 .
+docker_build -t "$repository/ubuntu-init:14.04" -f Dockerfile-14.04 .
+docker_build -t "$repository/ubuntu-init:16.04" -f Dockerfile-16.04 .
 popd
+
 pushd ubuntu-init-python
-docker_build -t $repository/ubuntu-init-python:14.04 -f Dockerfile-14.04 .
-docker_build -t $repository/ubuntu-init-python:16.04 -f Dockerfile-16.04 .
+docker_build -t "$repository/ubuntu-init-python:14.04" -f Dockerfile-14.04 .
+docker_build -t "$repository/ubuntu-init-python:16.04" -f Dockerfile-16.04 .
 popd

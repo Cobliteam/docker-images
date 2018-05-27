@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail
+
+if [ "$DOCKER_TAG" = latest ]; then
+    sbt_version=$(curl -q 'https://search.maven.org/solrsearch/select?q=g:org.scala-sbt+AND+a:sbt&wt=json' \
+                  | grep -oE '"latestVersion"[[:blank:]]*:[[:blank:]]*"[^"]+"' \
+                  | cut -d: -f2 \
+                  | tr -d '"')
+else
+    sbt_version="$DOCKER_TAG"
+fi
+
+docker build -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME" \
+    --build-arg=SOURCE_COMMIT="$SOURCE_COMMIT" \
+    --build-arg=SBT_VERSION="$sbt_version" .
