@@ -1,4 +1,4 @@
-FROM quay.io/cobli/ubuntu-init:14.04
+FROM cobli/ubuntu-init:14.04
 
 RUN apt-get update -q \
     && apt-get install -y --no-install-recommends \
