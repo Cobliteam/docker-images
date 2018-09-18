@@ -16,6 +16,8 @@ RUN apt-get update -q \
 RUN useradd -s /bin/bash -m -d /home/test test
 RUN printf "Defaults !requiretty\ntest ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/test
 
+RUN service ssh start
+
 EXPOSE 22
 
 ENTRYPOINT ["/sbin/init"]
