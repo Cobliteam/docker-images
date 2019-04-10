@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+set -e
 
 apt_proxy_addr=
 if pgrep -n apt-cacher-ng >/dev/null 2>&1; then
@@ -19,16 +21,88 @@ docker_build() {
     fi
 }
 
-repository="$1"
-[ -n "$repository" ] || repository=cobli
+help() {
+    echo "Usage: $0 [build|push] <image> [tag]" >&2
+    exit 1
+}
 
-pushd sbt; docker_build -t "$repository/ci-sbt:latest" .; popd
-for image in \
-    ubuntu-init-14.04 \
-    ubuntu-init-16.04 \
-    ubuntu-init-python-14.04 \
-    ubuntu-init-python-16.04 \
-    squid-ssl
-do
-    pushd "$image"; docker_build -t "$repository/$image:latest" .; popd
-done
+if [ $# -lt 2 ]; then
+    help
+fi
+
+cmd="$1"
+image="$2"
+tag="$3"
+
+if [ -z "$DOCKER_REPO" ]; then
+    DOCKER_REPO=cobli
+fi
+
+if [ -z "$tag" ]; then
+    tag=latest
+fi
+
+composite_tag() {
+    if [ "$tag" == "latest" ]; then
+        echo "$1"
+    else
+        echo "$1-${tag}"
+    fi
+}
+
+case "$cmd" in
+build)
+    case "$image" in
+    ubuntu-init)
+        pushd ubuntu-init
+        docker_build --build-arg UBUNTU_VERSION=14.04 -f Dockerfile-14.04 \
+            -t "${DOCKER_REPO}/ubuntu-init:$(composite_tag 14.04)" .
+        docker_build --build-arg UBUNTU_VERSION=16.04 -f Dockerfile \
+            -t "${DOCKER_REPO}/ubuntu-init:$(composite_tag 16.04)" .
+        docker_build --build-arg UBUNTU_VERSION=18.04 -f Dockerfile \
+            -t "${DOCKER_REPO}/ubuntu-init:$(composite_tag 18.04)" .
+        popd
+    ;;
+    ubuntu-init-python)
+        pushd ubuntu-init-python
+        docker_build --build-arg UBUNTU_VERSION=14.04 -f Dockerfile-14.04 \
+            -t "${DOCKER_REPO}/ubuntu-init-python:$(composite_tag 14.04)" .
+        docker_build --build-arg UBUNTU_VERSION=16.04 -f Dockerfile \
+            -t "${DOCKER_REPO}/ubuntu-init-python:$(composite_tag 16.04)" .
+        docker_build --build-arg UBUNTU_VERSION=18.04 -f Dockerfile \
+            -t "${DOCKER_REPO}/ubuntu-init-python:$(composite_tag 18.04)" .
+        popd
+    ;;
+    squid-ssl)
+        pushd squid-ssl
+        docker_build -t "${DOCKER_REPO}/squid-ssl:${tag}" .
+        popd
+    ;;
+    ci-sbt)
+        pushd sbt
+        docker_build -t "${DOCKER_REPO}/ci-sbt:${tag}" .
+        popd
+    ;;
+    *)
+        echo "Unknown image $image" >&2
+        exit 1
+    esac
+;;
+push)
+    tags=("${tag}")
+    if [[ "$image" == ubuntu-* ]]; then
+        tags=("$(composite_tag 14.04)" \
+              "$(composite_tag 16.04)" \
+              "$(composite_tag 18.04)")
+    fi
+
+    for tag in "${tags[@]}"; do
+        docker push "${DOCKER_REPO}/${image}:${tag}"
+    done
+;;
+*)
+    help
+esac
+
+
+

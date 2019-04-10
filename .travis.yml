@@ -1,0 +1,43 @@
+dist: xenial
+language: generic
+services:
+  - docker
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+before_script:
+  - |
+    if [[ "$TRAVIS_BRANCH" = master && -z "$TRAVIS_PULL_REQUEST_BRANCH" ]]; then
+      docker_tag=latest
+    else
+      docker_tag=$(git rev-parse --short HEAD)
+    fi
+  - >-
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+jobs:
+  include:
+    - stage: deploy
+      name: sbt
+      script:
+        - &set_tag |
+        - ./build.sh build ci-sbt ${docker_tag}
+        - ./build.sh push ci-sbt ${docker_tag}
+
+    - stage: deploy
+      name: ubuntu-init
+      script:
+        - *set_tag
+        - ./build.sh build ubuntu-init ${docker_tag}
+        - ./build.sh build ubuntu-init-python ${docker_tag}
+        - ./build.sh push ubuntu-init ${docker_tag}
+        - ./build.sh push ubuntu-init-python ${docker_tag}
+
+    - stage: deploy
+      name: squid
+      script:
+        - *set_tag
+        - ./build.sh build squid-ssl ${docker_tag}
+        - ./build.sh push squid-ssl ${docker_tag}
