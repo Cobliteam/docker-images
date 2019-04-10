@@ -1,0 +1,18 @@
+enable dbus.service
+enable dbus.socket
+
+enable systemd-journald.service
+enable systemd-machine-id-commit.service
+enable systemd-random-seed.service
+enable systemd-tmpfiles-setup.service
+enable systemd-sysusers.service
+
+enable systemd-logind.service
+enable systemd-resolved.service
+enable systemd-user-sessions.service
+
+enable exit.target
+
+enable ssh.service
+
+disable *

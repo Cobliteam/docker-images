@@ -1,4 +1,5 @@
-FROM cobli/ubuntu-init:16.04
+ARG UBUNTU_VERSION=18.04
+FROM cobli/ubuntu-init:${UBUNTU_VERSION}
 
 RUN apt-get update -q \
     && apt-get install -y --no-install-recommends \
