@@ -10,9 +10,7 @@ addons:
 before_script:
   - |
     if [[ "$TRAVIS_BRANCH" = master && -z "$TRAVIS_PULL_REQUEST_BRANCH" ]]; then
-      docker_tag=latest
-    else
-      docker_tag=$(git rev-parse --short HEAD)
+      export TAG_LATEST=1
     fi
   - >-
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
@@ -22,22 +20,19 @@ jobs:
     - stage: deploy
       name: sbt
       script:
-        - &set_tag |
-        - ./build.sh build ci-sbt ${docker_tag}
-        - ./build.sh push ci-sbt ${docker_tag}
-
+        - ./build.sh pull ci-sbt
+        - ./build.sh build ci-sbt
+        - ./build.sh push ci-sbt
     - stage: deploy
       name: ubuntu-init
       script:
-        - *set_tag
-        - ./build.sh build ubuntu-init ${docker_tag}
-        - ./build.sh build ubuntu-init-python ${docker_tag}
-        - ./build.sh push ubuntu-init ${docker_tag}
-        - ./build.sh push ubuntu-init-python ${docker_tag}
-
+        - images=(ubuntu-init-{14.04,16.04,18.04} ubuntu-init-python-{14.04,16.04,18.04})
+        - ./build.sh pull "${images[@]}"
+        - ./build.sh build "${images[@]}"
+        - ./build.sh push "${images[@]}"
     - stage: deploy
       name: squid
       script:
-        - *set_tag
-        - ./build.sh build squid-ssl ${docker_tag}
-        - ./build.sh push squid-ssl ${docker_tag}
+        - ./build.sh pull squid-ssl
+        - ./build.sh build squid-ssl
+        - ./build.sh push squid-ssl

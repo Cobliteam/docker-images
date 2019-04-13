@@ -1,0 +1,66 @@
+version: '2.3'
+services:
+  ubuntu-init-14.04:
+    image: ${DOCKER_REPO}/ubuntu-init:14.04${DOCKER_REV_TAG:-}
+    build:
+      context: ubuntu-init
+      cache_from:
+        - ${DOCKER_REPO}/ubuntu-init:14.04
+      dockerfile: Dockerfile-14.04
+  ubuntu-init-16.04:
+    image: ${DOCKER_REPO}/ubuntu-init:16.04${DOCKER_REV_TAG:-}
+    build:
+      context: ubuntu-init
+      cache_from:
+        - ${DOCKER_REPO}/ubuntu-init:16.04
+      args:
+        UBUNTU_VERSION: '16.04'
+  ubuntu-init-18.04:
+    image: ${DOCKER_REPO}/ubuntu-init:18.04${DOCKER_REV_TAG:-}
+    build:
+      context: ubuntu-init
+      cache_from:
+        - ${DOCKER_REPO}/ubuntu-init:18.04
+      args:
+        UBUNTU_VERSION: '18.04'
+  ubuntu-init-python-14.04:
+    image: ${DOCKER_REPO}/ubuntu-init-python:14.04${DOCKER_REV_TAG:-}
+    build:
+      context: ubuntu-init-python
+      cache_from:
+        - ${DOCKER_REPO}/ubuntu-init-python:14.04
+      dockerfile: Dockerfile-14.04
+    depends_on:
+      - ubuntu-init-14.04
+  ubuntu-init-python-16.04:
+    image: ${DOCKER_REPO}/ubuntu-init-python:16.04${DOCKER_REV_TAG:-}
+    build:
+      context: ubuntu-init-python
+      cache_from:
+        - ${DOCKER_REPO}/ubuntu-init-python:16.04
+      args:
+        UBUNTU_VERSION: '16.04'
+    depends_on:
+      - ubuntu-init-16.04
+  ubuntu-init-python-18.04:
+    image: ${DOCKER_REPO}/ubuntu-init-python:18.04${DOCKER_REV_TAG:-}
+    build:
+      context: ubuntu-init-python
+      cache_from:
+        - ${DOCKER_REPO}/ubuntu-init-python:18.04
+      args:
+        UBUNTU_VERSION: '18.04'
+    depends_on:
+      - ubuntu-init-18.04
+  ci-sbt:
+    image: ${DOCKER_REPO}/ci-sbt:latest${DOCKER_REV_TAG:-}
+    build:
+      context: sbt
+      cache_from:
+        - ${DOCKER_REPO}/ci-sbt:latest
+  squid-ssl:
+    image: ${DOCKER_REPO}/squid-ssl:latest${DOCKER_REV_TAG:-}
+    build:
+      context: sbt
+      cache_from:
+        - ${DOCKER_REPO}/squid-ssl:latest
