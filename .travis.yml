@@ -10,8 +10,11 @@ addons:
 before_script:
   - |
     if [[ "$TRAVIS_BRANCH" = master && -z "$TRAVIS_PULL_REQUEST_BRANCH" ]]; then
-      export TAG_LATEST=1
+      TAG_LATEST=1
+    else
+      TAG_LATEST=0
     fi
+    export TAG_LATEST
   - >-
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
