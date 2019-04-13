@@ -12,6 +12,16 @@ RUN apt-get update \
        apt-transport-https apt-utils \
     && rm -rf /var/lib/apt/lists/*
 
+# Mask services that should never run in containers
+RUN systemctl mask \
+    ondemand.service \
+    kmod-static-nodes.service \
+    systemd-modules-load.service \
+    systemd-remount-fs.service \
+    systemd-sysctl.service \
+    systemd-tmpfiles-setup-dev.service
+
+# Disable all other non-essential services by default with a customnpreset
 COPY 50-docker.preset /etc/systemd/system-preset/50-docker.preset
 RUN systemctl preset-all && systemctl set-default multi-user.target
 
