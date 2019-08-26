@@ -29,7 +29,7 @@ jobs:
     - stage: deploy
       name: ubuntu-init
       script:
-        - images=(ubuntu-init-{14.04,16.04,18.04} ubuntu-init-python-{14.04,16.04,18.04})
+        - images=(ubuntu-init-{14.04,16.04,18.04} ubuntu-init-python-{14.04,16.04,18.04} ubuntu-init-python3-18.04)
         - ./build.sh pull "${images[@]}"
         - ./build.sh build "${images[@]}"
         - ./build.sh push "${images[@]}"
