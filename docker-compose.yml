@@ -52,6 +52,16 @@ services:
         UBUNTU_VERSION: '18.04'
     depends_on:
       - ubuntu-init-18.04
+  ubuntu-init-python3-18.04:
+    image: ${DOCKER_REPO}/ubuntu-init-python3:18.04${DOCKER_REV_TAG:-}
+    build:
+      context: ubuntu-init-python3
+      cache_from:
+        - ${DOCKER_REPO}/ubuntu-init-python3:18.04
+      args:
+        UBUNTU_VERSION: '18.04'
+    depends_on:
+      - ubuntu-init-18.04
   ci-sbt:
     image: ${DOCKER_REPO}/ci-sbt:latest${DOCKER_REV_TAG:-}
     build:
