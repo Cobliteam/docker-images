@@ -39,3 +39,9 @@ jobs:
         - ./build.sh pull squid-ssl
         - ./build.sh build squid-ssl
         - ./build.sh push squid-ssl
+    - stage: deploy
+        name: jdk11-datadog-agent
+        script:
+          - ./build.sh pull jdk11-datadog-agent
+          - ./build.sh build jdk11-datadog-agent
+          - ./build.sh push jdk11-datadog-agent
