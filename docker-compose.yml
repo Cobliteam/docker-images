@@ -75,7 +75,7 @@ services:
       cache_from:
         - ${DOCKER_REPO}/squid-ssl:latest
   jdk11-datadog-agent:
-    image: ${DOCKER_REPO}/jdk11-datadog-agent:11.0.7-jre-slim-buster-datadog-agent{DOCKER_REV_TAG:-}
+    image: ${DOCKER_REPO}/jdk11-datadog-agent:11.0.7-jre-slim-buster-datadog-agent${DOCKER_REV_TAG:-}
     build:
       context: jdk11-datadog-agent
       cache_from:
