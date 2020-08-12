@@ -89,3 +89,18 @@ shown):
 
 Alternatively, a custom config file can be bind-mounted to
 `/etc/squid/squid.conf` while passing `SQUID_CUSTOM_CONFIG=1` as an env var.
+
+## cobli/jdk11-datadog-agent
+
+Base: openjdk:11.0.7-jre-slim-buster
+
+This is a _Java_ image with the datadog agent configured 
+
+It downloads the datadog agent and adds it to the _JAVA_OPTS_ environment variable.
+You can override the _JAVA_OPTS_, but remember to configure the agent by adding the parameter: `-javaagent:/opt/java-app/dd-java-agent.jar`.  
+
+To configure the DataDog agent, you need to set its environment variables. For example:
+- `DD_ENV: prod`
+- `DD_TRACE_ENABLED: "false"`
+- `DD_AGENT_HOST: ${YOUR_AGENT_HOST_URL}`
+- `DD_SERVICE: ${YOUR_SERVICE_NAME}`
