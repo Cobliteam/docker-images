@@ -3,7 +3,7 @@ FROM openjdk:11.0.7-jre-slim-buster
 ### Datadog agent config
 ENV DD_TRACE_ENABLED="false"
 ARG DD_REPO_BASE_URL=https://repository.sonatype.org/service/local/repositories
-ARG DD_VERSION=0.56.0
+ARG DD_VERSION=0.58.0
 
 WORKDIR /opt/java-app/
 
@@ -17,4 +17,3 @@ RUN  apt-get update \
 ENV JAVA_OPTS="-javaagent:/opt/java-app/dd-java-agent.jar"
 
 LABEL io.buildpacks.stack.id=io.buildpacks.stacks.bionic"
-
