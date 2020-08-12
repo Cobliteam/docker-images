@@ -16,4 +16,4 @@ RUN  apt-get update \
 
 ENV JAVA_OPTS="-javaagent:/opt/java-app/dd-java-agent.jar"
 
-LABEL io.buildpacks.stack.id=io.buildpacks.stacks.bionic"
+LABEL io.buildpacks.stack.id=io.buildpacks.stacks.bionic
