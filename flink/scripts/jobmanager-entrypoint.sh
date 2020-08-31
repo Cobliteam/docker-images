@@ -19,15 +19,18 @@ set -e
 ###############################################################################
 
 cobli_verbosity_level=${COBLI_ENTRYPOINT_VERBOSITY_LEVEL:-0}
+red_color='\033[0;31m'
+no_color='\033[0m'
+yellow_color='\033[1;33m'
 
 log_warn() {
   if [ $cobli_verbosity_level -ge 1 ]; then
-    echo "COBLI_ENTRYPOINT: $@" 1>&2
+    echo -e "${yellow_color}COBLI_ENTRYPOINT: $@${no_color}" 1>&2
   fi
 }
 
 log_err() {
-  echo "COBLI_ENTRYPOINT: $@" 1>&2
+  echo -e "${red_color}COBLI_ENTRYPOINT: $@${no_color}" 1>&2
 }
 
 submit_job() {
@@ -148,6 +151,7 @@ entrypoint() {
   default_ha_sp="/mnt/$job_name-states/savepoints"
   default_ha_chk="/mnt/$job_name-states/checkpoints"
   default_ha_zk="/mnt/$job_name-states/zookeeper"
+
 # default_ha_sp="test/mnt/$job_name-states/savepoints"
 # default_ha_chk="test/mnt/$job_name-states/checkpoints"
 # default_ha_zk="test/mnt/$job_name-states/zookeeper"
