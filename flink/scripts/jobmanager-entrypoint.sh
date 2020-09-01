@@ -115,10 +115,15 @@ ensure_checkpoint_completion() {
   current_time=$(TZ=UTC0 date "+%s")
   end_time=$(( $current_time + $timeout_in_secs ))
 
+  local num_checkpoint_completed
   while [ $current_time -lt $end_time ]; do
     current_time="$(TZ=UTC0 date '+%s')"
     log_warn "> Verifying checkpoint creation..."
-    if [ "$(get_number_of_checkpoints_completed $rest_api_addr)" -gt 0 ]; then
+
+    num_checkpoint_completed="$(get_number_of_checkpoints_completed \
+      $rest_api_addr)"
+    if [[ ${num_checkpoint_completed:+x} && $num_checkpoint_completed -gt 0 ]];
+    then
       log_warn "> Cleaning up savepoint reference"
       return
     fi
