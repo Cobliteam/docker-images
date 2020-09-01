@@ -1,5 +1,4 @@
 #! /bin/bash
-set -e
 ###############################################################################
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
@@ -18,20 +17,12 @@ set -e
 # limitations under the License.
 ###############################################################################
 
-cobli_verbosity_level=${COBLI_FLINK_VERBOSITY_LEVEL:-0}
-red_color='\033[0;31m'
-no_color='\033[0m'
-yellow_color='\033[1;33m'
+set -e
 
-log_warn() {
-  if [ $cobli_verbosity_level -ge 1 ]; then
-    echo -e "${yellow_color}COBLI_ENTRYPOINT: $@${no_color}" 1>&2
-  fi
-}
+cobli_script="COBLI_ENTRYPOINT"
 
-log_err() {
-  echo -e "${red_color}COBLI_ENTRYPOINT: $@${no_color}" 1>&2
-}
+cd "$(dirname "${BASH_SOURCE[0]}")"
+source ./common.sh
 
 submit_job() {
   log_warn "> Submiting job..."
