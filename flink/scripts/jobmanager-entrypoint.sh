@@ -83,7 +83,7 @@ clean_zookeeper_data() {
 }
 
 query_jobmanager_api_for_checkpoints() {
-  log_warn "> Querying rest api for checkpoints completed. TODO"
+  log_warn "> Querying rest api for checkpoints completed"
   local rest_api_addr job_id api_response
   rest_api_addr="$1"
   # TODO get job id from rest api"
@@ -171,9 +171,6 @@ entrypoint() {
   default_ha_chk="/mnt/$job_name-states/checkpoints"
   default_ha_zk="/mnt/$job_name-states/zookeeper"
 
-# default_ha_sp="test/mnt/$job_name-states/savepoints"
-# default_ha_chk="test/mnt/$job_name-states/checkpoints"
-# default_ha_zk="test/mnt/$job_name-states/zookeeper"
   ha_savepoint_path="${COBLI_FLINK_HA_SAVEPOINT_PATH:-$default_ha_sp}"
   ha_checkpoint_path="${COBLI_FLINK_HA_CHECKPOINT_PATH:-$default_ha_chk}"
   ha_zk_path="${COBLI_FLINK_HA_ZK_PATH:-$default_ha_zk}"
@@ -199,7 +196,6 @@ entrypoint() {
   log_warn "Looking for savepoints"
   savepoint="$(get_savepoint_ref $savepoint_ref_path)"
 
-  local jobmanager_pid
   if [ -z ${savepoint:+x} ]; then
     log_warn "Submiting job without savepoint"
     submit_job $@
