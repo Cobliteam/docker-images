@@ -134,6 +134,20 @@ ensure_checkpoint_completion() {
   exit 1
 }
 
+validate_savepoint() {
+  local savepoint_path
+  savepoint_path="$(echo $1 | sed 's!file://!!g')"
+  log_warn "> Validating savepoint: <$savepoint_path>"
+  if [ -d "$savepoint_path" ]; then
+    if [ -f "$savepoint_path/_metadata" ]; then
+      log_warn "> Valid savepoint"
+      return 0
+    fi
+  fi
+  log_warn "> Invalid savepoint"
+  return 1
+}
+
 remove_savepoint_ref(){
   local savepoint_ref_path
   savepoint_ref_path=$1
@@ -190,18 +204,24 @@ entrypoint() {
     log_warn "Submiting job without savepoint"
     submit_job $@
   else
-    log_warn "Cleaning up zookeeper data"
-    clean_zookeeper_data "$zk_host" "$zk_root_path" "$job_name"
+    log_warn "Validating savepoint ref"
+    if $(validate_savepoint $savepoint); then
+      log_warn "Cleaning up zookeeper data"
+      clean_zookeeper_data "$zk_host" "$zk_root_path" "$job_name"
 
-    log_warn "Submiting job with savepoint"
-    submit_job $@ "--from-savepoint $savepoint"
+      log_warn "Submiting job with savepoint"
+      submit_job $@ "--fromSavepoint $savepoint"
 
-    log_warn "Waiting for checkpoint completion"
-    ensure_checkpoint_completion \
-      $rest_api_addr \
-      $job_name \
-      $timeout_in_secs \
-      $interval_in_secs
+      log_warn "Waiting for checkpoint completion"
+      ensure_checkpoint_completion \
+        $rest_api_addr \
+        $job_name \
+        $timeout_in_secs \
+        $interval_in_secs
+    else
+      log_warn "Submiting job without savepoint"
+      submit_job $@
+    fi
     remove_savepoint_ref "$savepoint_ref_path"
   fi
   log_warn "Entrypoint done"
