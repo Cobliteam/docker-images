@@ -18,7 +18,7 @@ set -e
 # limitations under the License.
 ###############################################################################
 
-cobli_verbosity_level=${COBLI_ENTRYPOINT_VERBOSITY_LEVEL:-0}
+cobli_verbosity_level=${COBLI_FLINK_VERBOSITY_LEVEL:-0}
 red_color='\033[0;31m'
 no_color='\033[0m'
 yellow_color='\033[1;33m'
@@ -145,11 +145,11 @@ remove_savepoint_ref(){
 entrypoint() {
   local default_zk_root zk_host zk_root_path job_name
   missing_env_msg="ERROR: Could not find environment variable"
-  zk_host="${COBLI_ENTRYPOINT_ZK_HOST:?$missing_env_msg}"
-  job_name="${COBLI_ENTRYPOINT_JOB_NAME:?$missing_env_msg}"
+  zk_host="${COBLI_FLINK_ZK_HOST:?$missing_env_msg}"
+  job_name="${COBLI_FLINK_JOB_NAME:?$missing_env_msg}"
 
   default_zk_root="/flink"
-  zk_root_path="${COBLI_ENTRYPOINT_ZK_ROOT:-$default_zk_root}"
+  zk_root_path="${COBLI_FLINK_ZK_ROOT:-$default_zk_root}"
 
   local ha_savepoint_path ha_zk_path ha_checkpoint_path
   local default_ha_sp default_ha_chk default_ha_zk
@@ -160,16 +160,16 @@ entrypoint() {
 # default_ha_sp="test/mnt/$job_name-states/savepoints"
 # default_ha_chk="test/mnt/$job_name-states/checkpoints"
 # default_ha_zk="test/mnt/$job_name-states/zookeeper"
-  ha_savepoint_path="${COBLI_ENTRYPOINT_HA_SAVEPOINT_PATH:-$default_ha_sp}"
-  ha_checkpoint_path="${COBLI_ENTRYPOINT_HA_CHECKPOINT_PATH:-$default_ha_chk}"
-  ha_zk_path="${COBLI_ENTRYPOINT_HA_ZK_PATH:-$default_ha_zk}"
+  ha_savepoint_path="${COBLI_FLINK_HA_SAVEPOINT_PATH:-$default_ha_sp}"
+  ha_checkpoint_path="${COBLI_FLINK_HA_CHECKPOINT_PATH:-$default_ha_chk}"
+  ha_zk_path="${COBLI_FLINK_HA_ZK_PATH:-$default_ha_zk}"
 
   local default_sp_ref savepoint_ref_path
   default_sp_ref="${default_ha_sp}/last_savepoint.cobli"
-  savepoint_ref_path="${COBLI_ENTRYPOINT_SAVEPOINT_REF_PATH:-$default_sp_ref}"
+  savepoint_ref_path="${COBLI_FLINK_SAVEPOINT_REF_PATH:-$default_sp_ref}"
 
   local rest_api_addr
-  rest_api_addr="${COBLI_ENTRYPOINT_REST_API_ADDR:?$missing_env_msg}"
+  rest_api_addr="${COBLI_FLINK_REST_API_ADDR:?$missing_env_msg}"
 
 
   local timeout_in_secs interval_in_secs
