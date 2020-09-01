@@ -32,7 +32,7 @@ submit_job() {
 
 ensure_ha_directories() {
   log_warn "> Ensuring directories existence..."
-  mkdir -p $@
+  mkdir -p "$@"
   log_warn "> Directories present"
 }
 
@@ -43,12 +43,12 @@ get_savepoint_ref() {
   if [ -f "$savepoint_ref_path" ]; then
     log_warn "> Savepoint reference file found"
     log_warn "> Geting savepoint path..."
-    savepoint_path="$(cat $savepoint_ref_path | sed 's/#.*//g' )"
+    savepoint_path=$(sed 's/#.*//g' < "$savepoint_ref_path")
     log_warn "> Got savepoint: <$savepoint_path>"
   else
     log_warn "> Savepoint file not fount"
   fi
-  echo $savepoint_path
+  echo "$savepoint_path"
 }
 
 clean_zookeeper_data() {
@@ -75,28 +75,30 @@ clean_zookeeper_data() {
 
 query_jobmanager_api_for_checkpoints() {
   log_warn "> Querying rest api for checkpoints completed"
-  local rest_api_addr job_id api_response
+  local rest_api_addr job_id api_response api_endpoint
   rest_api_addr="$1"
   # TODO get job id from rest api"
   job_id="00000000000000000000000000000000"
-  api_response=$(curl -s "$rest_api_addr/jobs/$job_id/checkpoints" || true)
+  api_endpoint="$rest_api_addr/jobs/$job_id/checkpoints"
+  log_warn "> Quering API in address: $api_endpoint"
+  api_response=$(curl -s "$api_endpoint"  || true)
   log_warn "> Api response: <$api_response>"
-  echo $api_response
+  echo "$api_response"
 }
 
 get_number_of_checkpoints_completed() {
   log_warn "> Getting API response"
   local api_response jq_path rest_api_addr
   rest_api_addr="$1"
-  api_response="$(query_jobmanager_api_for_checkpoints $rest_api_addr)"
+  api_response=$(query_jobmanager_api_for_checkpoints "$rest_api_addr")
   jq_path=".counts.completed"
-  num_checkpoint_completed="$(echo $api_response | jq $jq_path )"
+  num_checkpoint_completed=$(echo "$api_response" | jq "$jq_path")
   log_warn "> Num of checkpoints completed: <$num_checkpoint_completed>"
-  echo $num_checkpoint_completed
+  echo "$num_checkpoint_completed"
 }
 
 ensure_checkpoint_completion() {
-  local rest_api_addr job_name timout interval_in_secs
+  local rest_api_addr job_name timeout_in_secs interval_in_secs
   rest_api_addr="$1"
   job_name="$2"
   timeout_in_secs="$3"
@@ -104,21 +106,21 @@ ensure_checkpoint_completion() {
 
   local current_time end_time
   current_time=$(TZ=UTC0 date "+%s")
-  end_time=$(( $current_time + $timeout_in_secs ))
+  end_time=$((current_time + timeout_in_secs))
 
   local num_checkpoint_completed
-  while [ $current_time -lt $end_time ]; do
+  while [ "$current_time" -lt "$end_time" ]; do
     current_time="$(TZ=UTC0 date '+%s')"
     log_warn "> Verifying checkpoint creation..."
 
-    num_checkpoint_completed="$(get_number_of_checkpoints_completed \
-      $rest_api_addr)"
+    num_checkpoint_completed=$(get_number_of_checkpoints_completed \
+      "$rest_api_addr")
     if [[ ${num_checkpoint_completed:+x} && $num_checkpoint_completed -gt 0 ]];
     then
       log_warn "> Cleaning up savepoint reference"
       return
     fi
-    sleep $interval_in_secs
+    sleep "$interval_in_secs"
   done
   log_err "ERROR: Timeout while wayting for checkpoint creation"
   log_err "ERROR: Termination script whitou removing savepoint"
@@ -127,7 +129,7 @@ ensure_checkpoint_completion() {
 
 validate_savepoint() {
   local savepoint_path
-  savepoint_path="$(echo $1 | sed 's!file://!!g')"
+  savepoint_path=$(echo "$1" | sed 's!file://!!g')
   log_warn "> Validating savepoint: <$savepoint_path>"
   if [ -d "$savepoint_path" ]; then
     if [ -f "$savepoint_path/_metadata" ]; then
@@ -185,29 +187,29 @@ entrypoint() {
     "$ha_zk_path"
 
   log_warn "Looking for savepoints"
-  savepoint="$(get_savepoint_ref $savepoint_ref_path)"
+  savepoint=$(get_savepoint_ref "$savepoint_ref_path")
 
   if [ -z ${savepoint:+x} ]; then
     log_warn "Submiting job without savepoint"
-    submit_job $@
+    submit_job "$@"
   else
     log_warn "Validating savepoint ref"
-    if $(validate_savepoint $savepoint); then
+    if validate_savepoint "$savepoint"; then
       log_warn "Cleaning up zookeeper data"
       clean_zookeeper_data "$zk_host" "$zk_root_path" "$job_name"
 
       log_warn "Submiting job with savepoint"
-      submit_job $@ "--fromSavepoint $savepoint"
+      submit_job "$@" "--fromSavepoint $savepoint"
 
       log_warn "Waiting for checkpoint completion"
       ensure_checkpoint_completion \
-        $rest_api_addr \
-        $job_name \
-        $timeout_in_secs \
-        $interval_in_secs
+        "$rest_api_addr" \
+        "$job_name" \
+        "$timeout_in_secs" \
+        "$interval_in_secs"
     else
       log_warn "Submiting job without savepoint"
-      submit_job $@
+      submit_job "$@"
     fi
     remove_savepoint_ref "$savepoint_ref_path"
   fi
@@ -215,4 +217,4 @@ entrypoint() {
   wait
 }
 
-entrypoint $@
+entrypoint "$@"
