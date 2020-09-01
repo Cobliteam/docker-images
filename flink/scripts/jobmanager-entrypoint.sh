@@ -179,7 +179,7 @@ entrypoint() {
   ha_zk_path="${COBLI_FLINK_HA_ZK_PATH:-$default_ha_zk}"
 
   local default_sp_ref savepoint_ref_path
-  default_sp_ref="${default_ha_sp}/last_savepoint.cobli"
+  default_sp_ref="${ha_savepoint_path}/last_savepoint.cobli"
   savepoint_ref_path="${COBLI_FLINK_SAVEPOINT_REF_PATH:-$default_sp_ref}"
 
   local rest_api_addr
