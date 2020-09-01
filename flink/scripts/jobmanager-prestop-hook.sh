@@ -63,7 +63,7 @@ entrypoint() {
 
   local savepoint_path
   savepoint_path="$(stop_job)"
-  if ["${savepoint_path:-null}" != "null"]; then
+  if [ "${savepoint_path:-null}" != "null" ]; then
     create_savepoint_ref "$savepoint_path"
   else
     log_err "ERROR: Could not generate a savepoint"
