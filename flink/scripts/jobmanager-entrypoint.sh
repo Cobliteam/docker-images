@@ -141,8 +141,8 @@ ensure_checkpoint_completion() {
     fi
     sleep "$interval_in_secs"
   done
-  log_err "Timeout while wayting for checkpoint creation"
-  log_err "Termination script whitou removing savepoint"
+  log_err "Timeout while waiting for checkpoint creation"
+  log_err "Script ended without removing savepoint"
   exit 1
 }
 
@@ -166,7 +166,6 @@ remove_savepoint_ref(){
   log_info "> Removing savepoint reference file: <$savepoint_ref_path>"
   rm -f "$savepoint_ref_path"
 }
-
 
 entrypoint() {
   local default_zk_root zk_host zk_root_path job_name
