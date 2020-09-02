@@ -20,18 +20,25 @@
 cobli_verbosity_level=${COBLI_FLINK_VERBOSITY_LEVEL:-0}
 flink_home=${FLINK_HOME:-"/opt/flink"}
 
+green_color='\033[0;32m'
 red_color='\033[0;31m'
 no_color='\033[0m'
 yellow_color='\033[1;33m'
 
+log_debug() {
+  if [ "$cobli_verbosity_level" -ge 2 ]; then
+    echo -e "${green_color}${cobli_script}: <DEBUG> $*${no_color}" 1>&2
+  fi
+}
+
 log_warn() {
   if [ "$cobli_verbosity_level" -ge 1 ]; then
-    echo -e "${yellow_color}${cobli_script}: $*${no_color}" 1>&2
+    echo -e "${yellow_color}${cobli_script}: <WARN> $*${no_color}" 1>&2
   fi
 }
 
 log_err() {
-  echo -e "${red_color}${cobli_script}: $*${no_color}" 1>&2
+  echo -e "${red_color}${cobli_script}: <ERROR> $*${no_color}" 1>&2
 }
 
 ensure_flink_config() {

@@ -66,7 +66,7 @@ entrypoint() {
   if [ "${savepoint_path:-null}" != "null" ]; then
     create_savepoint_ref "$savepoint_path"
   else
-    log_err "ERROR: Could not generate a savepoint"
+    log_err "Could not generate a savepoint"
   fi
 }
 

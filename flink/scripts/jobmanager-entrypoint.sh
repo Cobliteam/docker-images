@@ -123,8 +123,8 @@ ensure_checkpoint_completion() {
     fi
     sleep "$interval_in_secs"
   done
-  log_err "ERROR: Timeout while wayting for checkpoint creation"
-  log_err "ERROR: Termination script whitou removing savepoint"
+  log_err "Timeout while wayting for checkpoint creation"
+  log_err "Termination script whitou removing savepoint"
   exit 1
 }
 
