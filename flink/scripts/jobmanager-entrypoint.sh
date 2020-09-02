@@ -109,7 +109,11 @@ get_number_of_checkpoints_completed() {
   jq_path=".counts.completed"
   num_checkpoint_completed=$(echo "$api_response" | jq "$jq_path")
   log_info "> Num of checkpoints completed: <$num_checkpoint_completed>"
-  echo "$num_checkpoint_completed"
+  if [ ${num_checkpoint_completed:+x} ]; then
+    echo "$num_checkpoint_completed"
+  else
+    echo "0"
+  fi
 }
 
 ensure_checkpoint_completion() {
@@ -130,7 +134,7 @@ ensure_checkpoint_completion() {
 
     num_checkpoint_completed=$(get_number_of_checkpoints_completed \
       "$rest_api_addr")
-    if [[ ${num_checkpoint_completed:+x} && $num_checkpoint_completed -gt 0 ]];
+    if [[ "$num_checkpoint_completed" -gt "0" ]];
     then
       log_info "> Cleaning up savepoint reference"
       return
