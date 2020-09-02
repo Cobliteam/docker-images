@@ -18,6 +18,7 @@
 ###############################################################################
 
 cobli_verbosity_level=${COBLI_FLINK_VERBOSITY_LEVEL:-0}
+flink_home=${FLINK_HOME:-"/opt/flink"}
 
 red_color='\033[0;31m'
 no_color='\033[0m'
@@ -39,6 +40,6 @@ ensure_flink_config() {
     log_warn "$msg <$COBLI_FLINK_CONF_TEMPLATE_PATH>"
     envsubst \
       < "$COBLI_FLINK_CONF_TEMPLATE_PATH" \
-      > /opt/flink/conf/flink-conf.yaml
+      > "$flink_home/conf/flink-conf.yaml"
   fi
 }

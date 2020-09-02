@@ -29,7 +29,7 @@ stop_job() {
   # TODO get job id from rest api"
   job_id="00000000000000000000000000000000"
   log_warn "Stopping the job with savepoint"
-  cmd_return="$(/opt/flink/bin/flink stop -d $job_id)"
+  cmd_return=$("$flink_home/bin/flink" stop -d "$job_id")
   log_warn "$cmd_return"
   pattern="Savepoint completed. Path: file:"
   sed_replace="s/.*$pattern\([^ ]*\)\([ ].*\)*/\1/g"

@@ -30,7 +30,7 @@ entrypoint() {
   log_warn "Entrypoint running..."
   ensure_flink_config
   log_warn "Starting taskmanager..."
-  /opt/flink/bin/taskmanager.sh "$@" 1>&2 &
+  "$flink_home/bin/taskmanager.sh" "$@" 1>&2 &
   log_warn "Entrypoint done"
   wait
 }

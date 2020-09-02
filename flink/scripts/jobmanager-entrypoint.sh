@@ -27,7 +27,7 @@ source ./common.sh
 submit_job() {
   log_warn "> Submiting job..."
   ensure_flink_config
-  /opt/flink/bin/standalone-job.sh "$@" 1>&2 &
+  "$flink_home/bin/standalone-job.sh" "$@" 1>&2 &
   log_warn "> Job submited"
 }
 
