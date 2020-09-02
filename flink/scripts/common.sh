@@ -20,11 +20,20 @@
 cobli_verbosity_level=${COBLI_FLINK_VERBOSITY_LEVEL:-0}
 flink_home=${FLINK_HOME:-"/opt/flink"}
 
+missing_env_msg="ERROR: Could not find environment variable"
+job_name="${FLINK_CONF_HIGH_AVAILABILITY_CLUSTER_ID:?$missing_env_msg}"
+
 green_color='\033[1;32m'
 cyan_color='\033[0;36m'
 no_color='\033[0m'
 red_color='\033[0;31m'
 yellow_color='\033[1;33m'
+
+clean_protocol() {
+  local in_path out_path
+  in_path="$1"
+  echo "$in_path" | sed "s!^\([^ ]\)*://!!"
+}
 
 log_debug() {
   if [ "$cobli_verbosity_level" -ge 3 ]; then
@@ -57,3 +66,11 @@ ensure_flink_config() {
       > "$flink_home/conf/flink-conf.yaml"
   fi
 }
+
+
+## H.A. variables
+default_ha_sp="/mnt/$job_name-states/savepoints"
+env_hs_sp_path=$(clean_protocol "$FLINK_CONF_STATE_SAVEPOINTS_DIR")
+ha_savepoint_path="${env_hs_sp_path:-$default_ha_sp}"
+default_sp_ref="${ha_savepoint_path}/last_savepoint.cobli"
+savepoint_ref_path="${COBLI_FLINK_SAVEPOINT_REF_PATH:-$default_sp_ref}"

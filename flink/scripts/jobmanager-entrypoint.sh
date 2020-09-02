@@ -41,6 +41,8 @@ get_savepoint_ref() {
   local savepoint_ref_path savepoint_path
   savepoint_ref_path="$1"
   savepoint_path=''
+
+  log_debug "Looking for savepoints in <$savepoint_ref_path>"
   if [ -f "$savepoint_ref_path" ]; then
     log_info "> Savepoint reference file found"
     log_info "> Geting savepoint path..."
@@ -168,30 +170,29 @@ remove_savepoint_ref(){
 }
 
 entrypoint() {
-  local default_zk_root zk_host zk_root_path job_name
+  local default_zk_root zk_host env_zk_root_path zk_root_path
   missing_env_msg="ERROR: Could not find environment variable"
-  zk_host="${COBLI_FLINK_ZK_HOST:?$missing_env_msg}"
-  job_name="${COBLI_FLINK_JOB_NAME:?$missing_env_msg}"
+  zk_host="${FLINK_CONF_HIGH_AVAILABILITY_ZOOKEEPER_QUORUM:?$missing_env_msg}"
 
   default_zk_root="/flink"
-  zk_root_path="${COBLI_FLINK_ZK_ROOT:-$default_zk_root}"
+  env_zk_root_path="$FLINK_CONF_HIGH_AVAILABILITY_ZOOKEEPER_PATH_ROOT"
+  zk_root_path="${env_zk_root_path:-$default_zk_root}"
 
-  local ha_savepoint_path ha_zk_path ha_checkpoint_path
-  local default_ha_sp default_ha_chk default_ha_zk
-  default_ha_sp="/mnt/$job_name-states/savepoints"
+  local ha_zk_path ha_checkpoint_path
+  local default_ha_chk default_ha_zk env_ha_chk_path env_ha_zk_path
   default_ha_chk="/mnt/$job_name-states/checkpoints"
   default_ha_zk="/mnt/$job_name-states/zookeeper"
 
-  ha_savepoint_path="${COBLI_FLINK_HA_SAVEPOINT_PATH:-$default_ha_sp}"
-  ha_checkpoint_path="${COBLI_FLINK_HA_CHECKPOINT_PATH:-$default_ha_chk}"
-  ha_zk_path="${COBLI_FLINK_HA_ZK_PATH:-$default_ha_zk}"
+  env_ha_chk_path=$(clean_protocol "$FLINK_CONF_STATE_CHECKPOINTS_DIR")
+  ha_checkpoint_path="${env_ha_chk_path:-$default_ha_chk}"
 
-  local default_sp_ref savepoint_ref_path
-  default_sp_ref="${ha_savepoint_path}/last_savepoint.cobli"
-  savepoint_ref_path="${COBLI_FLINK_SAVEPOINT_REF_PATH:-$default_sp_ref}"
+  env_ha_zk_path=$(clean_protocol "$FLINK_CONF_HIGH_AVAILABILITY_STORAGEDIR")
+  ha_zk_path="${env_ha_zk_path:-$default_ha_zk}"
 
-  local rest_api_addr
-  rest_api_addr="${COBLI_FLINK_REST_API_ADDR:?$missing_env_msg}"
+  local rest_api_host rest_api_port rest_api_addr
+  rest_api_host="${FLINK_CONF_JOBMANAGER_RPC_ADDRESS:?$missing_env_msg}"
+  rest_api_port="${FLINK_CONF_REST_PORT:?$missing_env_msg}"
+  rest_api_addr="http://${rest_api_host}:${rest_api_port}"
 
 
   local timeout_in_secs interval_in_secs
