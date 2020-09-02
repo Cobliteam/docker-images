@@ -52,6 +52,19 @@ get_savepoint_ref() {
   echo "$savepoint_path"
 }
 
+get_jar_location() {
+  local jar_prefix jar_path flink_lib_path
+  jar_prefix="$1"
+  flink_lib_path="$flink_home/lib"
+  jar_path=$(find "$flink_lib_path" -name "${jar_prefix}*.jar")
+  if [ "${jar_path:-undefined}" == "undefined" ]; then
+    msg="Couldi not find a file with prefix <$jar_prefix> in <$flink_lib_path>"
+    log_err "$msg"
+    exit 1
+  fi
+  echo "$jar_path"
+}
+
 clean_zookeeper_data() {
   local zk_host zk_root_path job_name
   zk_host="$1"
@@ -61,15 +74,16 @@ clean_zookeeper_data() {
   local zk_clean_cmd
   zk_clean_cmd="rmr $zk_root_path/$job_name"
 
-  local zk_cp_0 zk_cp_1 zk_cp_2 zk_cp
-  zk_cp_0="lib/org.apache.zookeeper.zookeeper-3.4.13.jar"
-  zk_cp_1="lib/org.slf4j.slf4j-api-1.7.26.jar"
-  zk_cp_2="org.apache.zookeeper.ZooKeeperMain"
-  zk_cp="$zk_cp_0:$zk_cp_1 $zk_cp_2"
+  local zk_jars_0 zk_jars_1 zk_jars zk_class
+  zk_jars_0=$(get_jar_location "org.apache.zookeeper.zookeeper")
+  zk_jars_1=$(get_jar_location "org.slf4j.slf4j-api")
+  zk_jars="$zk_jars_0:$zk_jars_1"
+  zk_class="org.apache.zookeeper.ZooKeeperMain"
 
   log_warn "> Cleaning zookeeper path: <$zk_root_path/$job_name>"
-
-  echo "$zk_clean_cmd" | java -cp $zk_cp -server $zk_host
+  log_debug "> Running command: <$zk_clean_cmd>"
+  log_debug "> Using ZK: java -cp <$zk_jars> $zk_class -server <$zk_host>"
+  echo "$zk_clean_cmd" | java -cp "$zk_jars" "$zk_class" -server "$zk_host"
 
   log_warn "> Zookeeper cleaned"
 }
