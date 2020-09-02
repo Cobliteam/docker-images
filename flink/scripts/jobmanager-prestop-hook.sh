@@ -28,13 +28,13 @@ stop_job() {
   local cmd_return job_id pattern savepoint_path
   # TODO get job id from rest api"
   job_id="00000000000000000000000000000000"
-  log_warn "Stopping the job with savepoint"
+  log_info "Stopping the job with savepoint"
   cmd_return=$("$flink_home/bin/flink" stop -d "$job_id")
-  log_warn "$cmd_return"
+  log_debug "$cmd_return"
   pattern="Savepoint completed. Path: file:"
   sed_replace="s/.*$pattern\([^ ]*\)\([ ].*\)*/\1/g"
   savepoint_path=$(echo "$cmd_return" | grep "$pattern" | sed "$sed_replace")
-  log_warn "Savepoint generated in path: <$savepoint_path>"
+  log_info "Savepoint generated in path: <$savepoint_path>"
   echo "$savepoint_path"
 }
 
@@ -52,7 +52,7 @@ create_savepoint_ref() {
     > "$savepoint_ref_path"
   echo "file://$savepoint" > "$savepoint_ref_path"
 
-  log_warn "Savepoint ref file generated in: <$savepoint_ref_path>"
+  log_info "Savepoint ref file generated in: <$savepoint_ref_path>"
 }
 
 entrypoint() {

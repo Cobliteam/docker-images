@@ -20,14 +20,21 @@
 cobli_verbosity_level=${COBLI_FLINK_VERBOSITY_LEVEL:-0}
 flink_home=${FLINK_HOME:-"/opt/flink"}
 
-green_color='\033[0;32m'
-red_color='\033[0;31m'
+green_color='\033[1;32m'
+grey_color='\033[1;30m'
 no_color='\033[0m'
+red_color='\033[0;31m'
 yellow_color='\033[1;33m'
 
 log_debug() {
+  if [ "$cobli_verbosity_level" -ge 3 ]; then
+    echo -e "${grey_color}${cobli_script}: <DEBUG> $*${no_color}" 1>&2
+  fi
+}
+
+log_info() {
   if [ "$cobli_verbosity_level" -ge 2 ]; then
-    echo -e "${green_color}${cobli_script}: <DEBUG> $*${no_color}" 1>&2
+    echo -e "${green_color}${cobli_script}: <INFO> $*${no_color}" 1>&2
   fi
 }
 
@@ -44,7 +51,7 @@ log_err() {
 ensure_flink_config() {
   if [ "${COBLI_FLINK_CONF_TEMPLATE_PATH:-undefined}" != "undefined" ]; then
     msg="Generating flink-conf.yaml from template:"
-    log_warn "$msg <$COBLI_FLINK_CONF_TEMPLATE_PATH>"
+    log_info "$msg <$COBLI_FLINK_CONF_TEMPLATE_PATH>"
     envsubst \
       < "$COBLI_FLINK_CONF_TEMPLATE_PATH" \
       > "$flink_home/conf/flink-conf.yaml"

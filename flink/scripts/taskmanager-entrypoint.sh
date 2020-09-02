@@ -27,11 +27,11 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 source ./common.sh
 
 entrypoint() {
-  log_warn "Entrypoint running..."
+  log_info "Entrypoint running..."
   ensure_flink_config
-  log_warn "Starting taskmanager..."
+  log_info "Starting taskmanager..."
   "$flink_home/bin/taskmanager.sh" "$@" 1>&2 &
-  log_warn "Entrypoint done"
+  log_info "Entrypoint done"
   wait
 }
 

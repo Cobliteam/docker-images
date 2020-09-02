@@ -25,16 +25,16 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 source ./common.sh
 
 submit_job() {
-  log_warn "> Submiting job..."
+  log_info "> Submiting job..."
   ensure_flink_config
   "$flink_home/bin/standalone-job.sh" "$@" 1>&2 &
-  log_warn "> Job submited"
+  log_info "> Job submited"
 }
 
 ensure_ha_directories() {
-  log_warn "> Ensuring directories existence..."
+  log_info "> Ensuring directories existence..."
   mkdir -p "$@"
-  log_warn "> Directories present"
+  log_info "> Directories present"
 }
 
 get_savepoint_ref() {
@@ -42,10 +42,10 @@ get_savepoint_ref() {
   savepoint_ref_path="$1"
   savepoint_path=''
   if [ -f "$savepoint_ref_path" ]; then
-    log_warn "> Savepoint reference file found"
-    log_warn "> Geting savepoint path..."
+    log_info "> Savepoint reference file found"
+    log_info "> Geting savepoint path..."
     savepoint_path=$(sed 's/#.*//g' < "$savepoint_ref_path")
-    log_warn "> Got savepoint: <$savepoint_path>"
+    log_info "> Got savepoint: <$savepoint_path>"
   else
     log_warn "> Savepoint file not fount"
   fi
@@ -80,35 +80,35 @@ clean_zookeeper_data() {
   zk_jars="$zk_jars_0:$zk_jars_1"
   zk_class="org.apache.zookeeper.ZooKeeperMain"
 
-  log_warn "> Cleaning zookeeper path: <$zk_root_path/$job_name>"
+  log_info "> Cleaning zookeeper path: <$zk_root_path/$job_name>"
   log_debug "> Running command: <$zk_clean_cmd>"
   log_debug "> Using ZK: java -cp <$zk_jars> $zk_class -server <$zk_host>"
   echo "$zk_clean_cmd" | java -cp "$zk_jars" "$zk_class" -server "$zk_host"
 
-  log_warn "> Zookeeper cleaned"
+  log_info "> Zookeeper cleaned"
 }
 
 query_jobmanager_api_for_checkpoints() {
-  log_warn "> Querying rest api for checkpoints completed"
+  log_info "> Querying rest api for checkpoints completed"
   local rest_api_addr job_id api_response api_endpoint
   rest_api_addr="$1"
   # TODO get job id from rest api"
   job_id="00000000000000000000000000000000"
   api_endpoint="$rest_api_addr/jobs/$job_id/checkpoints"
-  log_warn "> Quering API in address: $api_endpoint"
+  log_debug "> Quering API in address: $api_endpoint"
   api_response=$(curl -s "$api_endpoint"  || true)
-  log_warn "> Api response: <$api_response>"
+  log_debug "> Api response: <$api_response>"
   echo "$api_response"
 }
 
 get_number_of_checkpoints_completed() {
-  log_warn "> Getting API response"
+  log_info "> Getting API response"
   local api_response jq_path rest_api_addr
   rest_api_addr="$1"
   api_response=$(query_jobmanager_api_for_checkpoints "$rest_api_addr")
   jq_path=".counts.completed"
   num_checkpoint_completed=$(echo "$api_response" | jq "$jq_path")
-  log_warn "> Num of checkpoints completed: <$num_checkpoint_completed>"
+  log_info "> Num of checkpoints completed: <$num_checkpoint_completed>"
   echo "$num_checkpoint_completed"
 }
 
@@ -126,13 +126,13 @@ ensure_checkpoint_completion() {
   local num_checkpoint_completed
   while [ "$current_time" -lt "$end_time" ]; do
     current_time="$(TZ=UTC0 date '+%s')"
-    log_warn "> Verifying checkpoint creation..."
+    log_info "> Verifying checkpoint creation..."
 
     num_checkpoint_completed=$(get_number_of_checkpoints_completed \
       "$rest_api_addr")
     if [[ ${num_checkpoint_completed:+x} && $num_checkpoint_completed -gt 0 ]];
     then
-      log_warn "> Cleaning up savepoint reference"
+      log_info "> Cleaning up savepoint reference"
       return
     fi
     sleep "$interval_in_secs"
@@ -145,10 +145,10 @@ ensure_checkpoint_completion() {
 validate_savepoint() {
   local savepoint_path
   savepoint_path=$(echo "$1" | sed 's!file://!!g')
-  log_warn "> Validating savepoint: <$savepoint_path>"
+  log_info "> Validating savepoint: <$savepoint_path>"
   if [ -d "$savepoint_path" ]; then
     if [ -f "$savepoint_path/_metadata" ]; then
-      log_warn "> Valid savepoint"
+      log_info "> Valid savepoint"
       return 0
     fi
   fi
@@ -159,7 +159,7 @@ validate_savepoint() {
 remove_savepoint_ref(){
   local savepoint_ref_path
   savepoint_ref_path=$1
-  log_warn "> Removing savepoint reference file: <$savepoint_ref_path>"
+  log_info "> Removing savepoint reference file: <$savepoint_ref_path>"
   rm -f "$savepoint_ref_path"
 }
 
@@ -195,28 +195,28 @@ entrypoint() {
   timeout_in_secs="${COBLI_ENTRYPOINT_TIMEOUT_IN_SECS:-300}"
   interval_in_secs="${COBLI_ENTRYPOINT_INTERVAL_IN_SECS:-5}"
 
-  log_warn "Entrypoint running..."
+  log_info "Entrypoint running..."
 
-  log_warn "Ensuring that H.A. directories are present on EFS"
+  log_info "Ensuring that H.A. directories are present on EFS"
   ensure_ha_directories "$ha_savepoint_path" "$ha_checkpoint_path" \
     "$ha_zk_path"
 
-  log_warn "Looking for savepoints"
+  log_info "Looking for savepoints"
   savepoint=$(get_savepoint_ref "$savepoint_ref_path")
 
   if [ -z ${savepoint:+x} ]; then
     log_warn "Submiting job without savepoint"
     submit_job "$@"
   else
-    log_warn "Validating savepoint ref"
+    log_info "Validating savepoint ref"
     if validate_savepoint "$savepoint"; then
-      log_warn "Cleaning up zookeeper data"
+      log_info "Cleaning up zookeeper data"
       clean_zookeeper_data "$zk_host" "$zk_root_path" "$job_name"
 
-      log_warn "Submiting job with savepoint"
+      log_info "Submiting job with savepoint"
       submit_job "$@" "--fromSavepoint $savepoint"
 
-      log_warn "Waiting for checkpoint completion"
+      log_info "Waiting for checkpoint completion"
       ensure_checkpoint_completion \
         "$rest_api_addr" \
         "$job_name" \
@@ -228,7 +228,7 @@ entrypoint() {
     fi
     remove_savepoint_ref "$savepoint_ref_path"
   fi
-  log_warn "Entrypoint done"
+  log_info "Entrypoint done"
   wait
 }
 
