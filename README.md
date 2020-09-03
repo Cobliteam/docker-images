@@ -143,6 +143,7 @@ COBLI_FLINK_* environment variables and COBLI_ENTRYPOINT_* environment
 variables.
 
 | Variable | Required | Default Value | Description |
+| -------- | -------- | ------------- | ----------- |
 | FLINK_CONF_HIGH_AVAILABILITY_ZOOKEEPER_QUORUM | true | Null | The ZooKeeper quorum to use, when running Flink in a high-availability mode with ZooKeeper |
 | FLINK_CONF_HIGH_AVAILABILITY_CLUSTER_ID | true | Null | The ID of the Flink cluster, used to separate multiple Flink clusters from each other |
 | FLINK_CONF_JOBMANAGER_RPC_ADDRESS | true | Null | The config parameter defining the network address to connect to for communication with the job manager. Scripts use this address to reach REST API |
