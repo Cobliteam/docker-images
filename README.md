@@ -120,8 +120,8 @@ Current building args:
 
 This is a _Flink_ image with some extra scripts to handle start/stop using
 savepoints automatically. These scripts assume that we are deploying a
-custerjob, we are using zookeeper as H.A. mode and that the savepoints are
-stored in a local directory.
+cluster with a single job, using H.A. mode backed by Zookeeper and storing
+savepoints in local directory.
 
 The preStop script will do best effort to create a savepoint, but in some cases
 the savepoint reference file cannot be generated. In these cases the start
