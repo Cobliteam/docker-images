@@ -45,3 +45,9 @@ jobs:
         - ./build.sh pull jdk11-datadog-agent
         - ./build.sh build jdk11-datadog-agent
         - ./build.sh push jdk11-datadog-agent
+    - stage: deploy
+      name: flink
+      script:
+        - ./build.sh pull flink
+        - ./build.sh build flink
+        - ./build.sh push flink
