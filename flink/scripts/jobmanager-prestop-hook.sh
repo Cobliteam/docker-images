@@ -25,11 +25,16 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 source ./common.sh
 
 stop_job() {
-  local cmd_return job_id pattern savepoint_path
-  # TODO get job id from rest api"
+  local cmd_args jm_addr cmd_return job_id pattern savepoint_path
+  # TODO get job id from rest api
   job_id="00000000000000000000000000000000"
   log_info "Stopping the job with savepoint"
-  cmd_return=$("$flink_home/bin/flink" stop -d "$job_id")
+  cmd_args=("-d" "$job_id")
+  if [ "${FLINK_CONF_JOBMANAGER_RPC_ADDRESS:-undefined}" != "undefined" ]; then
+    jm_addr="${FLINK_CONF_JOBMANAGER_RPC_ADDRESS}:${FLINK_CONF_REST_PORT}"
+    cmd_args=("-m" "$jm_addr" "${cmd_args[@]}")
+  fi
+  cmd_return=$("$flink_home/bin/flink" stop "${cmd_args[@]}")
   log_debug "$cmd_return"
   pattern="Savepoint completed. Path: file:"
   sed_replace="s/.*$pattern\([^ ]*\)\([ ].*\)*/\1/g"
