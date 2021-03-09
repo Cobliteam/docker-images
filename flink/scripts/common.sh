@@ -37,24 +37,36 @@ clean_protocol() {
 
 log_debug() {
   if [ "$cobli_verbosity_level" -ge 3 ]; then
-    echo -e "${cyan_color}${cobli_script}: <DEBUG> $*${no_color}" 1>&2
+    timestamp="$(date --rfc-3339=ns)"
+    prefix="${cyan_color}${timestamp} ${cobli_script}: <DEBUG>"
+    sufix="${no_color}"
+    echo -e "${prefix} $*${sufix}" 1>&2
   fi
 }
 
 log_info() {
   if [ "$cobli_verbosity_level" -ge 2 ]; then
-    echo -e "${green_color}${cobli_script}: <INFO> $*${no_color}" 1>&2
+    timestamp="$(date --rfc-3339=ns)"
+    prefix="${green_color}${timestamp} ${cobli_script}: <INFO>"
+    sufix="${no_color}"
+    echo -e "${prefix} $*${sufix}" 1>&2
   fi
 }
 
 log_warn() {
   if [ "$cobli_verbosity_level" -ge 1 ]; then
-    echo -e "${yellow_color}${cobli_script}: <WARN> $*${no_color}" 1>&2
+    timestamp="$(date --rfc-3339=ns)"
+    prefix="${yellow_color}${timestamp} ${cobli_script}: <WARN>"
+    sufix="${no_color}"
+    echo -e "${prefix} $*${sufix}" 1>&2
   fi
 }
 
 log_err() {
-  echo -e "${red_color}${cobli_script}: <ERROR> $*${no_color}" 1>&2
+    timestamp="$(date --rfc-3339=ns)"
+    prefix="${red_color}${timestamp} ${cobli_script}: <ERROR>"
+    sufix="${no_color}"
+    echo -e "${prefix} $*${sufix}" 1>&2
 }
 
 ensure_flink_config() {
