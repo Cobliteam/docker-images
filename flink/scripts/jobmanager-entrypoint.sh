@@ -29,7 +29,7 @@ submit_job() {
   ensure_flink_config
   log_debug "> Submission command:"
   log_debug "> \"$flink_home/bin/standalone-job.sh\" \"$@\" 1>&2 &"
-  "$flink_home/bin/standalone-job.sh" "$@" 1>&2 &
+  "$flink_home/bin/standalone-job.sh" $@ 1>&2 &
   log_info "> Job submited"
 }
 
