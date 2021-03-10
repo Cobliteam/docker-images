@@ -27,6 +27,8 @@ source ./common.sh
 submit_job() {
   log_info "> Submiting job..."
   ensure_flink_config
+  log_debug "> Submission command:"
+  log_debug "> $flink_home/bin/standalone-job.sh " "$@" " 1>&2 &"
   "$flink_home/bin/standalone-job.sh" "$@" 1>&2 &
   log_info "> Job submited"
 }
@@ -162,6 +164,18 @@ validate_savepoint() {
   return 1
 }
 
+ensure_checkpoints_dir_empty(){
+  local ha_checkpoint_path job_id timestamp
+  ha_checkpoint_path=$1
+  job_id="00000000000000000000000000000000"
+  checkpoints_dir="$ha_checkpoint_path/$job_id"
+  if [ -d "$checkpoints_dir" ]; then
+    timestamp="$(date +%s)"
+    log_debug "> Moving $checkpoints_dir to $ha_checkpoint_path/$timestamp"
+    mv "$checkpoints_dir" "$ha_checkpoint_path/$timestamp"
+  fi
+}
+
 remove_savepoint_ref(){
   local savepoint_ref_path
   savepoint_ref_path=$1
@@ -217,8 +231,13 @@ entrypoint() {
       log_info "Cleaning up zookeeper data"
       clean_zookeeper_data "$zk_host" "$zk_root_path" "$job_name"
 
+      log_info "Ensuring checkpoint directory is empty"
+      ensure_checkpoints_dir_empty $ha_checkpoint_path
+
       log_info "Submiting job with savepoint"
-      submit_job "$@" "--fromSavepoint $savepoint"
+      new_args=("$@")
+      new_args+="--fromSavepoint $savepoint"
+      submit_job "${new_args[@]}"
 
       log_info "Waiting for checkpoint completion"
       ensure_checkpoint_completion \
