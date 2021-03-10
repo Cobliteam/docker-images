@@ -28,8 +28,8 @@ submit_job() {
   log_info "> Submiting job..."
   ensure_flink_config
   log_debug "> Submission command:"
-  log_debug "> \"$flink_home/bin/standalone-job.sh\" \"$@\" 1>&2 &"
-  "$flink_home/bin/standalone-job.sh" $@ 1>&2 &
+  log_debug "> $flink_home/bin/standalone-job.sh " "$@" " 1>&2 &"
+  "$flink_home/bin/standalone-job.sh" "$@" 1>&2 &
   log_info "> Job submited"
 }
 
@@ -235,7 +235,9 @@ entrypoint() {
       ensure_checkpoints_dir_empty $ha_checkpoint_path
 
       log_info "Submiting job with savepoint"
-      submit_job "$@" "--fromSavepoint $savepoint"
+      new_args=("$@")
+      new_args+="--fromSavepoint $savepoint"
+      submit_job "${new_args[@]}"
 
       log_info "Waiting for checkpoint completion"
       ensure_checkpoint_completion \
