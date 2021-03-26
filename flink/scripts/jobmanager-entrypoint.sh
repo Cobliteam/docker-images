@@ -236,7 +236,7 @@ entrypoint() {
 
       log_info "Submiting job with savepoint"
       new_args=("$@")
-      new_args+="--fromSavepoint $savepoint"
+      new_args+=" --fromSavepoint $savepoint"
       submit_job "${new_args[@]}"
 
       log_info "Waiting for checkpoint completion"
