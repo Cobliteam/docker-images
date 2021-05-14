@@ -9,18 +9,6 @@ images used as base for some Cobli projects.
 All the images are pushed to quay.io automatically. To use them, prefix the
 image name with `quay.io`. For example, `quay.io/cobli/ci-sbt:latest`.
 
-## cobli/ci-sbt
-
-Base: ubuntu:16.04
-
-This image contains:
-- Base utilities: git, ssh, tar, gzip, ca-certificates, apt-transport-https
-- Python3 and dev. dependencies: for cassandra-migrate
-- OpenJDK 8 (for SBT)
-- The latest SBT launcher from the DEB repository
-- [Cassandra-migrate](https://github.com/Cobliteam/cassandra-migrate)
-- The AWS CLI
-
 ## cobli/ubuntu-init-14-04
 
 Base: ubuntu-upstart:14.04

@@ -21,12 +21,6 @@ before_script:
 jobs:
   include:
     - stage: deploy
-      name: sbt
-      script:
-        - ./build.sh pull ci-sbt
-        - ./build.sh build ci-sbt
-        - ./build.sh push ci-sbt
-    - stage: deploy
       name: ubuntu-init
       script:
         - images=(ubuntu-init-{14.04,16.04,18.04} ubuntu-init-python-{14.04,16.04,18.04} ubuntu-init-python3-18.04)

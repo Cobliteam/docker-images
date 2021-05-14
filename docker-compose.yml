@@ -62,12 +62,6 @@ services:
         UBUNTU_VERSION: '18.04'
     depends_on:
       - ubuntu-init-18.04
-  ci-sbt:
-    image: ${DOCKER_REPO}/ci-sbt:latest${DOCKER_REV_TAG:-}
-    build:
-      context: sbt
-      cache_from:
-        - ${DOCKER_REPO}/ci-sbt:latest
   squid-ssl:
     image: ${DOCKER_REPO}/squid-ssl:latest${DOCKER_REV_TAG:-}
     build:
