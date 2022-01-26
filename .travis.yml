@@ -34,7 +34,7 @@ jobs:
         - ./build.sh build squid-ssl
         - ./build.sh push squid-ssl
     - stage: deploy
-      name: 11.0.7-jre-slim-buster-datadog-agent
+      name: 11.0.13-jre-slim-buster-datadog-agent
       script:
         - ./build.sh pull jdk11-datadog-agent
         - ./build.sh build jdk11-datadog-agent
