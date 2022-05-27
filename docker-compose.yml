@@ -79,8 +79,8 @@ services:
     build:
       context: flink
       cache_from:
-        - ${DOCKER_REPO}/flink:1.9.0-scala_2.11
+        - ${DOCKER_REPO}/flink:1.13.6-scala_2.11
       args:
-        FLINK_VERSION: 1.9.0
+        FLINK_VERSION: 1.13.6
         SCALA_VERSION_MAJOR: 2
         SCALA_VERSION_MINOR: 11
