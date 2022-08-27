@@ -72,7 +72,14 @@ prepare_configuration() {
 
 maybe_enable_jemalloc() {
     if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
-        export LD_PRELOAD=$LD_PRELOAD:/usr/lib/x86_64-linux-gnu/libjemalloc.so
+        ARCH=$(uname -m)
+        case $ARCH in
+            aarch64) ARCH="aarch64";;
+            arm64) ARCH="aarch64";;
+            x86) ARCH="x86_64";;
+            x86_64) ARCH="x86_64";;
+        esac
+        export LD_PRELOAD=$LD_PRELOAD:/usr/lib/$ARCH-linux-gnu/libjemalloc.so
     fi
 }
 
