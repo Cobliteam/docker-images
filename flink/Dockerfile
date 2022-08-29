@@ -1,4 +1,4 @@
-FROM openjdk:11.0.16-slim-buster
+FROM openjdk:11.0.16-jre-slim-bullseye
 
 ARG FLINK_VERSION
 ARG SCALA_VERSION_MAJOR
