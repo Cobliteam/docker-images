@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ "$FLINK_VERSION" = "1.9.0" ]; then
+    gpg_key="1C1E2394D3194E1944613488F320986D35C33D6A"
+elif [ "$FLINK_VERSION" = "1.9.1" ]; then
+    gpg_key="E2C45417BED5C104154F341085BACB5AEFAE3202"
+elif [ "$FLINK_VERSION" = "1.9.2" ]; then
+    gpg_key="EF88474C564C7A608A822EEC3FF96A2057B6476C"
+elif [ "$FLINK_VERSION" = "1.9.3" ]; then
+    gpg_key="6B6291A8502BA8F0913AE04DDEB95B05BF075300"
+elif [ "$FLINK_VERSION" = "1.13.0" ]; then
+    gpg_key="31D2DD10BFC15A2D"
+elif [ "$FLINK_VERSION" = "1.13.1" ]; then
+    gpg_key="31D2DD10BFC15A2D"
+elif [ "$FLINK_VERSION" = "1.13.2" ]; then
+    gpg_key="78A306590F1081CC6794DC7F62DAD618E07CF996"
+elif [ "$FLINK_VERSION" = "1.13.3" ]; then
+    gpg_key="19F2195E1B4816D765A2C324C2EED7B111D464BA"
+elif [ "$FLINK_VERSION" = "1.13.4" ]; then
+    gpg_key="19F2195E1B4816D765A2C324C2EED7B111D464BA"
+elif [ "$FLINK_VERSION" = "1.13.5" ]; then
+    gpg_key="19F2195E1B4816D765A2C324C2EED7B111D464BA"
+elif [ "$FLINK_VERSION" = "1.13.6" ]; then
+    gpg_key="CCFA852FD039380AB3EC36D08C3FB007FE60DEFA"
+else
+    error "Missing GPG key ID for this release"
+fi
+
+export GPG_KEY=$gpg_key
