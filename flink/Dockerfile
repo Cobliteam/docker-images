@@ -39,7 +39,8 @@ RUN set -ex; \
 
 # Configure Flink version
 ENV FLINK_TGZ_URL=https://archive.apache.org/dist/flink/flink-${FLINK_VERSION}/flink-${FLINK_VERSION}-bin-scala_${SCALA_VERSION_MAJOR}.${SCALA_VERSION_MINOR}.tgz \
-    FLINK_ASC_URL=https://archive.apache.org/dist/flink/flink-${FLINK_VERSION}/flink-${FLINK_VERSION}-bin-scala_${SCALA_VERSION_MAJOR}.${SCALA_VERSION_MINOR}.tgz.asc
+    FLINK_ASC_URL=https://archive.apache.org/dist/flink/flink-${FLINK_VERSION}/flink-${FLINK_VERSION}-bin-scala_${SCALA_VERSION_MAJOR}.${SCALA_VERSION_MINOR}.tgz.asc \
+    CHECK_GPG=true
 
 # Prepare environment
 ENV FLINK_HOME $FLINK_HOME
@@ -47,11 +48,28 @@ ENV PATH=$FLINK_HOME/bin:$PATH
 RUN groupadd --system --gid=9999 flink && \
     useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
 COPY --chown=flink:flink scripts $FLINK_HOME/bin/cobli-scripts
+COPY --chown=flink:flink get-gpg-key.sh $FLINK_HOME
 WORKDIR $FLINK_HOME
 
 # Install Flink
 RUN set -ex; \
+  . $FLINK_HOME/get-gpg-key.sh; \
   wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in ha.pool.sks-keyservers.net $(shuf -e \
+                            hkp://p80.pool.sks-keyservers.net:80 \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
   \
   tar -xf flink.tgz --strip-components=1; \
   rm flink.tgz; \
