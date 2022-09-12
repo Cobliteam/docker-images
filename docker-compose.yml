@@ -75,7 +75,7 @@ services:
       cache_from:
         - ${DOCKER_REPO}/jdk11-datadog-agent:11.0.13-jre-slim-buster-datadog-agent
   flink:
-    image: ${DOCKER_REPO}/flink:1.9.0-scala_2.11${DOCKER_REV_TAG:-}
+    image: ${DOCKER_REPO}/flink:1.13.6-scala_2.11${DOCKER_REV_TAG:-}
     build:
       context: flink
       cache_from:
