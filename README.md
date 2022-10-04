@@ -54,33 +54,6 @@ Base: ubuntu-init-16-04
 
 Same as above, but for Ubuntu 16.04.
 
-## cobli/squid-ssl
-
-Base: alpine:3.7
-
-Squid (the caching proxy) image. Meant for use as an explicit proxy (by setting
-the `http_proxy` and `https_proxy` env. vars) in other containers.
-
-An ephemeral CA is generated in `/etc/squid/ssl`, which is set up as a volume.
-`/etc/squid/ssl/ca.pem` can be copied to other containers and added to their
-set of trusted CAs to allow for HTTPS interception.
-
-The cache directory is set to `/var/spool/squid` which is also a volume.
-
-To configure Squid, the following env. vars can be set (with their defaults
-shown):
-
-- `SQUID_SSL_DIR=/etc/squid/ssl`
-- `SQUID_SSL_DB_DIR=/var/cache/squid/ssl_Db`
-- `SQUID_SSL_DB_MEM_SIZE=4MB`
-- `SQUID_SSL_DB_DISK_SIZE=16MB`
-- `SQUID_CACHE_DIR_MAX_SIZE_MB=1000`
-- `SQUID_OBJECT_MAX_SIZE="100 MB"`
-- `SQUID_PORT=3128`.
-
-Alternatively, a custom config file can be bind-mounted to
-`/etc/squid/squid.conf` while passing `SQUID_CUSTOM_CONFIG=1` as an env var.
-
 ## cobli/jdk11-datadog-agent
 
 Base: openjdk:11.0.7-jre-slim-buster

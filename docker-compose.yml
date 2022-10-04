@@ -62,12 +62,6 @@ services:
         UBUNTU_VERSION: '18.04'
     depends_on:
       - ubuntu-init-18.04
-  squid-ssl:
-    image: ${DOCKER_REPO}/squid-ssl:latest${DOCKER_REV_TAG:-}
-    build:
-      context: sbt
-      cache_from:
-        - ${DOCKER_REPO}/squid-ssl:latest
   jdk11-datadog-agent:
     image: ${DOCKER_REPO}/jdk11-datadog-agent:11.0.13-jre-slim-buster-datadog-agent${DOCKER_REV_TAG:-}
     build:
