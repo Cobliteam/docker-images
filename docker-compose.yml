@@ -63,11 +63,11 @@ services:
     depends_on:
       - ubuntu-init-18.04
   jdk11-datadog-agent:
-    image: ${DOCKER_REPO}/jdk11-datadog-agent:11.0.13-jre-slim-buster-datadog-agent${DOCKER_REV_TAG:-}
+    image: ${DOCKER_REPO}/jdk11-datadog-agent:11.0.16-jre-slim-buster-datadog-agent${DOCKER_REV_TAG:-}
     build:
       context: jdk11-datadog-agent
       cache_from:
-        - ${DOCKER_REPO}/jdk11-datadog-agent:11.0.13-jre-slim-buster-datadog-agent
+        - ${DOCKER_REPO}/jdk11-datadog-agent:11.0.16-jre-slim-buster-datadog-agent
   flink:
     image: ${DOCKER_REPO}/flink:1.13.6-scala_2.11${DOCKER_REV_TAG:-}
     build:

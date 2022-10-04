@@ -56,7 +56,7 @@ Same as above, but for Ubuntu 16.04.
 
 ## cobli/jdk11-datadog-agent
 
-Base: openjdk:11.0.7-jre-slim-buster
+Base: openjdk:11.0.16-jre-slim-buster
 
 This is a _Java_ image with the datadog agent configured
 
