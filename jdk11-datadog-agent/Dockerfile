@@ -1,9 +1,9 @@
-FROM openjdk:11.0.13-jre-slim-buster
+FROM openjdk:11.0.16-jre-slim-buster
 
 ### Datadog agent config
 ENV DD_TRACE_ENABLED="false"
 ARG DD_REPO_BASE_URL=https://repository.sonatype.org/service/local/repositories
-ARG DD_VERSION=0.93.0
+ARG DD_VERSION=0.110.0
 
 WORKDIR /opt/java-app/
 
