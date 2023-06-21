@@ -2,15 +2,15 @@ FROM openjdk:11.0.16-jre-slim-buster
 
 ### Datadog agent config
 ENV DD_TRACE_ENABLED="false"
-ARG DD_REPO_BASE_URL=https://repository.sonatype.org/service/local/repositories
+ARG DD_REPO_BASE_URL=https://github.com/DataDog/dd-trace-java/releases/download
 ARG DD_VERSION=0.110.0
 
 WORKDIR /opt/java-app/
 
 RUN  apt-get update \
-  && apt-get install --no-install-recommends -y wget=1.20.1-1.1 \
+  && apt-get install --no-install-recommends -y wget=1.20.1-1.1 fontconfig=2.13.1-2 \
   && wget -O dd-java-agent.jar \
-    ${DD_REPO_BASE_URL}/central-proxy/content/com/datadoghq/dd-java-agent/${DD_VERSION}/dd-java-agent-${DD_VERSION}.jar \
+    ${DD_REPO_BASE_URL}/v${DD_VERSION}/dd-java-agent-${DD_VERSION}.jar \
   && apt-get remove --purge -y wget \
   && rm -rf /var/lib/apt/lists/*
 
