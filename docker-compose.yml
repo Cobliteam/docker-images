@@ -68,13 +68,3 @@ services:
       context: jdk11-datadog-agent
       cache_from:
         - ${DOCKER_REPO}/jdk11-datadog-agent:11.0.16-jre-slim-buster-datadog-agent
-  flink:
-    image: ${DOCKER_REPO}/flink:1.13.6-scala_2.11${DOCKER_REV_TAG:-}
-    build:
-      context: flink
-      cache_from:
-        - ${DOCKER_REPO}/flink:1.13.6-scala_2.11
-      args:
-        FLINK_VERSION: 1.13.6
-        SCALA_VERSION_MAJOR: 2
-        SCALA_VERSION_MINOR: 11
